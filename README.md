@@ -20,6 +20,12 @@ G_CLIENT_SECRET = < API OAuth của Google >
 PUBLIC_URL = <http://localhost:3000>
 SECRET = <một số văn bản bí mật>
 NODE_ENV = < development  nếu là developer >
+CLOUDINARY_NAME= Tên Cloudinary 
+CLOUDINARY_UPLOAD_PRESET= Upload preset của Cloudinary
+CLOUDINARY_KEY= API Key của Cloudinary
+CLOUDINARY_SECRET= API secret
+EMAIL_APP_PASS = Pass Email của bạn
+EMAIL_APP = Email của bạn
 ```
 Sau khi bạn đã định cấu hình các biến của mình, bạn có thể bắt đầu seed dữ liệu
 
