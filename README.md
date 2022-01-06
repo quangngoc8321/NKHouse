@@ -20,6 +20,8 @@ G_CLIENT_SECRET = < API OAuth của Google >
 PUBLIC_URL = <http://localhost:3000>
 SECRET = <một số văn bản bí mật>
 NODE_ENV = < development  nếu là developer >
+G_GEOCODE_KEY = Google Geocoding Key
+S_SECRET_KEY = Secret key của Stripe
 CLOUDINARY_NAME= Tên Cloudinary 
 CLOUDINARY_UPLOAD_PRESET= Upload preset của Cloudinary
 CLOUDINARY_KEY= API Key của Cloudinary
@@ -43,6 +45,15 @@ yarn start hoặc npm run start
 
 ## Client
 Client React Apollo hiển thị danh sách nhà/phòng cho thuê.
+
+## Cấu hình các biến môi trường
+
+Tạo một biến môi trường, tệp `.env` trong thư mục `./client`:
+
+```env
+REACT_APP_S_CLIENT_ID= Client ID của Stripe
+REACT_APP_S_PUBLISHABLE_KEY= Publish Key Của Stripe
+```
 
 ## Khởi động Client
 ```
