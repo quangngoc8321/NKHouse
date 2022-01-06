@@ -52,7 +52,7 @@ const { Paragraph, Title, Text } = Typography;
 export const ListingDetails = ({ listing, viewer }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [rate, setRate] = useState(0);
-  let comment = "";
+  const [comment, setComment] = useState("");
   const {
     id,
     title,
@@ -123,9 +123,8 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
   const handlecommentChange = (e: any) => {
     console.log(e.target.value);
     console.log(comment);
-    
-    
-    comment = e.target.value;
+
+    setComment(e.target.value);
   };
 
   const handlecommentSubmit = (id: string, rating: number, comment: string) => {
@@ -144,7 +143,7 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
     });
 
     setSubmitting(false);
-    comment = "";
+    setComment("");
   };
 
   const CommentList = ({ data }: any) => (
@@ -154,14 +153,16 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
       dataSource={data}
       renderItem={(item: any) => (
         <li>
-        <Rate disabled defaultValue={item.rating} />
-        <Comment
-          author={item.name}
-          avatar={
-            <Avatar src={item.user.avatar} />
-          }
-          content={item.comment}
-        />
+          <Rate disabled defaultValue={item.rating} />
+          <Comment
+            author={item.name}
+            avatar={<Avatar src={item.user.avatar} />}
+            content={item.comment}
+          /> 
+          <Divider orientation= "right">
+          <Button type="primary">Xóa</Button>
+          </Divider>
+        
         </li>
       )}
     />
@@ -173,7 +174,12 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
         <TextArea rows={4} onChange={onChange} defaultValue={value} />
       </Form.Item>
       <Form.Item>
-        <Button htmlType="submit" loading={submitting} onClick={onSubmit} type="primary">
+        <Button
+          htmlType="submit"
+          loading={submitting}
+          onClick={onSubmit}
+          type="primary"
+        >
           Thêm bình luận
         </Button>
       </Form.Item>
@@ -185,6 +191,12 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
     <span role="img" aria-label="heart">
       ❤️
     </span>
+  ) : null;
+
+  const commentlistSection = listing.review ? (
+    <>
+      <CommentList data={listing.review} />
+    </>
   ) : null;
 
   if (loading) {
@@ -282,7 +294,7 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
           {buttonText}
         </Button>{" "}
         {heartIcon}
-        <CommentList data = {listing.review} />
+        {commentlistSection}
         <Comment
           avatar={
             <Avatar
@@ -301,7 +313,7 @@ export const ListingDetails = ({ listing, viewer }: Props) => {
                 handlecommentSubmit(listing.id, rate, comment);
               }}
               submitting={submitting}
-              value = {comment}
+              value={comment}
             />
           }
         />
