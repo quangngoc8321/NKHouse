@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { Request, Response } from "express";
 import { IResolvers } from "apollo-server-express";
-import nodemailer from 'nodemailer';
-import {Google, Stripe } from "../../../lib/api";
+import nodemailer from "nodemailer";
+import { Google, Stripe } from "../../../lib/api";
 import { Viewer, Database, User } from "../../../lib/types";
 import { authorize } from "../../../lib/utils";
 import { LogInArgs, ConnectStripeArgs } from "./types";
@@ -12,10 +12,19 @@ const cookieOptions = {
   httpOnly: true,
   sameSite: true,
   signed: true,
-  secure: process.env.NODE_ENV === "development" ? false : true
+  secure: process.env.NODE_ENV === "development" ? false : true,
 };
 
-let sendSimpleEmail = async (user: any, id: string, title:string, address: string, reviewer:string , receiverEmail:string, subject: string, mess:string) => {
+let sendSimpleEmail = async (
+  user: any,
+  id: string,
+  title: string,
+  address: string,
+  reviewer: string,
+  receiverEmail: string,
+  subject: string,
+  mess: string
+) => {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -32,11 +41,18 @@ let sendSimpleEmail = async (user: any, id: string, title:string, address: strin
     from: '"NKHouse" <vonhi1203@gmail.com>', // sender address
     to: receiverEmail, // list of receivers
     subject: subject, // Subject line
-    html: getBodyHTMLEmail(user, id, title,address,reviewer, mess),
+    html: getBodyHTMLEmail(user, id, title, address, reviewer, mess),
   });
 };
 
-let getBodyHTMLEmail = (user: any, id: string, title:string, address: string, reviewer:string , mess:string) => {
+let getBodyHTMLEmail = (
+  user: any,
+  id: string,
+  title: string,
+  address: string,
+  reviewer: string,
+  mess: string
+) => {
   let result = "";
   result = `
             <h3>Xin chào ${user}</h3>
@@ -69,14 +85,18 @@ const logInViaGoogle = async (
   const userNamesList = user.names && user.names.length ? user.names : null;
   const userPhotosList = user.photos && user.photos.length ? user.photos : null;
   const userEmailsList =
-    user.emailAddresses && user.emailAddresses.length ? user.emailAddresses : null;
+    user.emailAddresses && user.emailAddresses.length
+      ? user.emailAddresses
+      : null;
 
   // User Display Name
   const userName = userNamesList ? userNamesList[0].displayName : null;
 
   // User Id
   const userId =
-    userNamesList && userNamesList[0].metadata && userNamesList[0].metadata.source
+    userNamesList &&
+    userNamesList[0].metadata &&
+    userNamesList[0].metadata.source
       ? userNamesList[0].metadata.source.id
       : null;
 
@@ -99,8 +119,8 @@ const logInViaGoogle = async (
         name: userName,
         avatar: userAvatar,
         contact: userEmail,
-        token
-      }
+        token,
+      },
     },
     { returnOriginal: false }
   );
@@ -118,7 +138,7 @@ const logInViaGoogle = async (
       bookings: [],
       listings: [],
       isadmin: false,
-      isreviewer: false
+      isreviewer: false,
     });
 
     viewer = insertResult.ops[0];
@@ -126,13 +146,11 @@ const logInViaGoogle = async (
 
   res.cookie("viewer", userId, {
     ...cookieOptions,
-    maxAge: 365 * 24 * 60 * 60 * 1000
+    maxAge: 365 * 24 * 60 * 60 * 1000,
   });
 
   return viewer;
 };
-
-
 
 const logInViaCookie = async (
   token: string,
@@ -169,7 +187,7 @@ export const viewerResolvers: IResolvers = {
     logInGoogle: async (
       _root: undefined,
       { input }: LogInArgs,
-      { db, req, res }: { db: Database; req: Request, res: Response }
+      { db, req, res }: { db: Database; req: Request; res: Response }
     ): Promise<Viewer> => {
       try {
         const code = input ? input.code : null;
@@ -190,13 +208,17 @@ export const viewerResolvers: IResolvers = {
           walletId: viewer.walletId,
           didRequest: true,
           isadmin: viewer.isadmin,
-          isreviewer: viewer.isreviewer
+          isreviewer: viewer.isreviewer,
         };
       } catch (error) {
         throw new Error(`Đăng nhập thất bại: ${error}`);
       }
     },
-    logOut: (_root: undefined, _args: {}, { res }: { res: Response }): Viewer => {
+    logOut: (
+      _root: undefined,
+      _args: {},
+      { res }: { res: Response }
+    ): Viewer => {
       try {
         res.clearCookie("viewer", cookieOptions);
         return { didRequest: true };
@@ -239,7 +261,7 @@ export const viewerResolvers: IResolvers = {
           token: viewer.token,
           avatar: viewer.avatar,
           walletId: viewer.walletId,
-          didRequest: true
+          didRequest: true,
         };
       } catch (error) {
         throw new Error(`Kết nối Stripe thất bại: ${error}`);
@@ -273,7 +295,7 @@ export const viewerResolvers: IResolvers = {
           token: viewer.token,
           avatar: viewer.avatar,
           walletId: viewer.walletId,
-          didRequest: true
+          didRequest: true,
         };
       } catch (error) {
         throw new Error(`Ngắt kết nối Stripe thất bại: ${error}`);
@@ -282,15 +304,16 @@ export const viewerResolvers: IResolvers = {
     sendEmail: async (
       _root: undefined,
       {
-        id,subject,mess
+        id,
+        subject,
+        mess,
       }: {
         id: string;
         subject: string;
-        mess: string
+        mess: string;
       },
-      { db,req }: { db: Database, req: Request }
+      { db, req }: { db: Database; req: Request }
     ) => {
-
       const pendinglisting = await db.pendinglistings.findOne({
         _id: new ObjectId(id),
       });
@@ -310,7 +333,16 @@ export const viewerResolvers: IResolvers = {
         throw new Error("Không tìm thấy người này");
       }
 
-      sendSimpleEmail(host.name, id, pendinglisting.title, pendinglisting.address,viewer.name , host.contact, subject, mess );
+      sendSimpleEmail(
+        host.name,
+        id,
+        pendinglisting.title,
+        pendinglisting.address,
+        viewer.name,
+        host.contact,
+        subject,
+        mess
+      );
     },
   },
   Viewer: {
@@ -326,6 +358,5 @@ export const viewerResolvers: IResolvers = {
     isreviewer: (viewer: Viewer): boolean | undefined => {
       return viewer.isreviewer ? true : undefined;
     },
-    
-  }
+  },
 };
