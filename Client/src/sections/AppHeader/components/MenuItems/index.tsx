@@ -37,7 +37,7 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
     logOut();
   };
   const subMenuLogin =
-    viewer.id && viewer.avatar && viewer.isadmin ?  (
+    viewer.id && viewer.avatar && viewer.isadmin ? (
       <SubMenu title={<Avatar src={viewer.avatar} />}>
         <Item key="/user">
           <Link to={`/user/${viewer.id}`}>
@@ -79,7 +79,7 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
           </div>
         </Item>
       </SubMenu>
-    )  : viewer.id && viewer.avatar ?  (
+    ) : viewer.id && viewer.avatar ? (
       <SubMenu title={<Avatar src={viewer.avatar} />}>
         <Item key="/user">
           <Link to={`/user/${viewer.id}`}>
@@ -102,9 +102,14 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
       </Item>
     );
 
-
   return (
     <Menu mode="horizontal" selectable={false} className="menu">
+      <Item key="/meet">
+        <Link to="/meet">
+          <Icon type="video-camera" />
+          NKMeet
+        </Link>
+      </Item>
       <Item key="/host">
         <Link to="/host">
           <Icon type="home" />
@@ -113,5 +118,5 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
       </Item>
       {subMenuLogin}
     </Menu>
-    );
+  );
 };
