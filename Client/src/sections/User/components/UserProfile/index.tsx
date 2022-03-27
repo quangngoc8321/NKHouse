@@ -76,30 +76,25 @@ export const UserProfile = ({
   const [sendMeetEmail, { data: SendMeetEmaildata }] = useMutation<
     SendMeetEmailData,
     SendMeetEmailVariables
-  >(SEND_MEET_EMAIL, {
-    onCompleted: (data) => {
-      if (data) {
-        displaySuccessNotification("Bạn đã đặt lịch hẹn thành công!");
-        handleUserRefetch();
-      }
-    },
-    onError: () => {
-      displayErrorNotification(
-        "Xin lỗi! Chúng tôi hiện không giúp bạn đặt lịch hẹn !"
-      );
-    },
-  });
+  >(SEND_MEET_EMAIL);
 
   const dispatch = useDispatch();
   const history = useHistory();
-  const [meetingId, setMeetingId] = useState("");
   const [openSnackbar] = useSnackbar({
     position: "top-center",
   });
 
-  const startMeeting = async () => {
+  const startMeeting = async (hour:string) => {
     try {
       const { meetingId } = await MeetingAPi.start("");
+      sendMeetEmail({
+        variables: {
+          id: user.id,
+          hour: hour,
+          subject: "Hẹn gặp mặt ở NKMeet",
+          mess: `NKMeet gửi lịch hẹn gặp mặt đường link http://localhost:3000/meeting/${meetingId}`,
+        },
+      });
       dispatch(start({ name: "", meetingId }));
       history.push(`/meeting/${meetingId}`);
     } catch (error) {
@@ -107,17 +102,6 @@ export const UserProfile = ({
     }
   };
 
-  const handleStartMeeting = (hour:string) => {
-    sendMeetEmail({
-      variables: {
-        id: user.id,
-        hour: hour,
-        subject: "Hẹn gặp mặt ở NKMeet",
-        mess: `NKMeet gửi lịch hẹn gặp mặt đường link http://localhost:3000/meeting/${meetingId}`,
-      },
-    });
-    startMeeting();
-  };
 
   const redirectToStripe = () => {
     window.location.href = stripeAuthUrl;
@@ -127,8 +111,8 @@ export const UserProfile = ({
     <Search
       placeholder="Nhập giờ cần hẹn"
       enterButton="Hẹn gặp"
-      // suffix = {<Icon type="percentage" />}
-      onSearch={(value) => handleStartMeeting(value)}
+      suffix = "giờ"
+      onSearch={(value) => startMeeting(value)}
     />
   );
 
