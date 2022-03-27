@@ -45,6 +45,34 @@ let sendSimpleEmail = async (
   });
 };
 
+let sendSimpleMeetEmail = async (
+  user: any,
+  hour: string,
+  receiverEmail: string,
+  subject: string,
+  tenant: string,
+  mess: string
+) => {
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: process.env.EMAIL_APP, // generated ethereal user
+      pass: process.env.EMAIL_APP_PASS, // generated ethereal password
+    },
+  });
+
+  // send mail with defined transport object
+  let info = await transporter.sendMail({
+    from: '"NKHouse" <vonhi1203@gmail.com>', // sender address
+    to: receiverEmail, // list of receivers
+    subject: subject, // Subject line
+    html: getBodyHTMLMeetEmail(user, hour, tenant, mess),
+  });
+};
+
 let getBodyHTMLEmail = (
   user: any,
   id: string,
@@ -64,7 +92,27 @@ let getBodyHTMLEmail = (
             <div><b>Reviewer: ${reviewer}</b></div>
 
 
-            <div>Xin chân thành cảm ơn !</div>    
+            <div>Xin chân thành cảm ơn!</div>    
+        `;
+  return result;
+};
+
+let getBodyHTMLMeetEmail = (
+  host: any,
+  hour: string,
+  tenant: string,
+  mess: string
+) => {
+  let result = "";
+  result = `
+            <h3>Xin chào ${host}</h3>
+            <p>${mess}</p>
+            <p>Thông tin nhà phòng: </p>
+            <div><b>Hẹn gặp lúc: ${hour} giờ</b></div>
+            <div><b>Người hẹn: ${tenant}</b></div>
+
+
+            <div>Xin chân thành cảm ơn!</div>    
         `;
   return result;
 };
@@ -341,6 +389,42 @@ export const viewerResolvers: IResolvers = {
         viewer.name,
         host.contact,
         subject,
+        mess
+      );
+    },
+    sendMeetEmail: async (
+      _root: undefined,
+      {
+        id,
+        hour,
+        subject,
+        mess,
+      }: {
+        id: string;
+        hour: string;
+        subject: string;
+        mess: string;
+      },
+      { db, req }: { db: Database; req: Request }
+    ) => {
+      let viewer = await authorize(db, req);
+      if (!viewer) {
+        throw new Error("Không tìm thấy người này");
+      }
+
+      const host = await db.users.findOne({
+        _id: id,
+      });
+      if (!host) {
+        throw new Error("Không tìm thấy người dùng này !");
+      }
+
+      sendSimpleMeetEmail(
+        host.name,
+        hour,
+        host.contact,
+        subject,
+        viewer.name,
         mess
       );
     },

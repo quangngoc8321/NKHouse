@@ -40,7 +40,6 @@ import { StylesProvider } from "@material-ui/core";
 import SnackbarProvider from "react-simple-snackbar";
 import MeetingPage from "./sections/Meet/pages/Meeting";
 import HomePage from "./sections/Meet/pages/Home";
-import "tailwindcss/dist/tailwind.min.css";
 
 
 const client = new ApolloClient({

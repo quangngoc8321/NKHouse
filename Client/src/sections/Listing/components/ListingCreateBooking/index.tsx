@@ -33,7 +33,7 @@ const {Search} = Input;
 
 interface Props {
 	viewer: Viewer;
-  id: string;
+  	id: string;
 	host: ListingData["listing"]["host"];
 	bookingsIndex: ListingData["listing"]["bookingsIndex"];
 	price: number;
@@ -47,7 +47,7 @@ interface Props {
 
 export const ListingCreateBooking = ({
 	viewer,
-  id,
+  	id,
 	host,
 	bookingsIndex,
 	price,

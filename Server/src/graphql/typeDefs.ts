@@ -15,7 +15,6 @@ export const typeDefs = gql`
     result: [Booking!]!
   }
 
-
   type Review {
     user: User!
     name: String!
@@ -59,7 +58,7 @@ export const typeDefs = gql`
     numOfGuests: Int!
     rating: Float!
     favorite: Boolean!
-    salepercent:Int!
+    salepercent: Int!
     numofReview: Int!
     review: [Review]
   }
@@ -81,7 +80,6 @@ export const typeDefs = gql`
     numOfGuests: Int!
     rating: Float!
     favorite: Boolean!
-
   }
 
   type Listings {
@@ -142,7 +140,6 @@ export const typeDefs = gql`
     numOfGuests: Int!
   }
 
-
   input HostPendingListingInput {
     title: String!
     description: String!
@@ -174,7 +171,7 @@ export const typeDefs = gql`
   type Query {
     authUrlGoogle: String!
     user(id: ID!): User!
-    users(limit: Int! page:Int!):Users!
+    users(limit: Int!, page: Int!): Users!
     listing(id: ID!): Listing!
     listings(
       location: String
@@ -189,10 +186,7 @@ export const typeDefs = gql`
       limit: Int!
       page: Int!
     ): PendingListings!
-    bookings(
-      limit: Int!
-      page: Int!
-    ): Bookings!
+    bookings(limit: Int!, page: Int!): Bookings!
   }
 
   type Mutation {
@@ -201,20 +195,26 @@ export const typeDefs = gql`
     connectStripe(input: ConnectStripeInput!): Viewer!
     disconnectStripe: Viewer!
     hostListing(input: HostListingInput): Listing!
-    hostListingFromPending(id:ID!,input: HostListingInput): Listing!
-    updateListing(id: ID!,input:UpdateListingInput): Listing!
+    hostListingFromPending(id: ID!, input: HostListingInput): Listing!
+    updateListing(id: ID!, input: UpdateListingInput): Listing!
     deleteListing(id: ID!): Listing!
     favoriteListing(id: ID!): Listing!
-    reviewListing(id:ID!, rating:Float!, comment:String!):Listing!
-    saleListing(id:ID!, salepercent:Int!):Listing!
+    reviewListing(id: ID!, rating: Float!, comment: String!): Listing!
+    saleListing(id: ID!, salepercent: Int!): Listing!
     deleteBooking(id: ID!): Booking!
     createBooking(input: CreateBookingInput!): Booking!
     deleteUser(id: ID!): User!
-    addAdmin(id:ID!): User!
-    addReviewer(id:ID!): User!
+    addAdmin(id: ID!): User!
+    addReviewer(id: ID!): User!
     hostPendingListing(input: HostPendingListingInput): PendingListing!
-    updatePendingListing(id: ID!,input:UpdateListingInput): PendingListing!
+    updatePendingListing(id: ID!, input: UpdateListingInput): PendingListing!
     deletePendingListing(id: ID!): PendingListing!
-    sendEmail(id: ID!, subject:String!, mess: String): Viewer!
+    sendEmail(id: ID!, subject: String!, mess: String): Viewer!
+    sendMeetEmail(
+      id: ID!
+      hour: String!
+      subject: String!
+      mess: String
+    ): Viewer!
   }
 `;

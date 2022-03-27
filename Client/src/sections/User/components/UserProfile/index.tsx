@@ -1,5 +1,14 @@
-import React, { Fragment } from "react";
-import { Avatar, Button, Card, Divider, Typography, Tag } from "antd";
+import React, { Fragment, useState } from "react";
+import {
+  Avatar,
+  Button,
+  Card,
+  Divider,
+  Typography,
+  Tag,
+  Input,
+  Icon,
+} from "antd";
 import { User as UserData } from "../../../../lib/graphql/queries/User/__generated__/User";
 import { Viewer } from "../../../../lib/types";
 import {
@@ -10,6 +19,17 @@ import {
 import { DisconnectStripe as DisconnectStripeData } from "../../../../lib/graphql/mutation/DisconnectStripe/__generated__/DisconnectStripe";
 import { useMutation } from "@apollo/react-hooks";
 import { DISCONNECT_STRIPE } from "../../../../lib/graphql/mutation";
+import { useDispatch } from "react-redux";
+import { useSnackbar } from "react-simple-snackbar";
+import { useHistory } from "react-router-dom";
+import * as MeetingAPi from "../../../Meet/lib/meeting-api";
+import { getErrorMessage } from "../../../Meet/lib/error-handling";
+import { start } from "../../../Meet/store/meeting/actions";
+import {
+  SendMeetEmail as SendMeetEmailData,
+  SendMeetEmailVariables,
+} from "../../../../lib/graphql/mutation/SendMeetEmail/__generated__/SendMeetEmail";
+import { SEND_MEET_EMAIL } from "../../../../lib/graphql/mutation/SendMeetEmail";
 
 interface Props {
   user: UserData["user"];
@@ -22,6 +42,8 @@ interface Props {
 const stripeAuthUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${process.env.REACT_APP_S_CLIENT_ID}&scope=read_write`;
 
 const { Paragraph, Text, Title } = Typography;
+
+const { Search } = Input;
 
 export const UserProfile = ({
   user,
@@ -51,14 +73,69 @@ export const UserProfile = ({
     }
   );
 
+  const [sendMeetEmail, { data: SendMeetEmaildata }] = useMutation<
+    SendMeetEmailData,
+    SendMeetEmailVariables
+  >(SEND_MEET_EMAIL, {
+    onCompleted: (data) => {
+      if (data) {
+        displaySuccessNotification("Bạn đã đặt lịch hẹn thành công!");
+        handleUserRefetch();
+      }
+    },
+    onError: () => {
+      displayErrorNotification(
+        "Xin lỗi! Chúng tôi hiện không giúp bạn đặt lịch hẹn !"
+      );
+    },
+  });
+
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const [meetingId, setMeetingId] = useState("");
+  const [openSnackbar] = useSnackbar({
+    position: "top-center",
+  });
+
+  const startMeeting = async () => {
+    try {
+      const { meetingId } = await MeetingAPi.start("");
+      dispatch(start({ name: "", meetingId }));
+      history.push(`/meeting/${meetingId}`);
+    } catch (error) {
+      openSnackbar(getErrorMessage(error));
+    }
+  };
+
+  const handleStartMeeting = (hour:string) => {
+    sendMeetEmail({
+      variables: {
+        id: user.id,
+        hour: hour,
+        subject: "Hẹn gặp mặt ở NKMeet",
+        mess: `NKMeet gửi lịch hẹn gặp mặt đường link http://localhost:3000/meeting/${meetingId}`,
+      },
+    });
+    startMeeting();
+  };
+
   const redirectToStripe = () => {
     window.location.href = stripeAuthUrl;
   };
 
+  const MeetButton = viewerIsUser ? null : (
+    <Search
+      placeholder="Nhập giờ cần hẹn"
+      enterButton="Hẹn gặp"
+      // suffix = {<Icon type="percentage" />}
+      onSearch={(value) => handleStartMeeting(value)}
+    />
+  );
+
   const additionalDetails = user.hasWallet ? (
     <Fragment>
       <Paragraph>
-        <Tag color="green">Đã đăng ký Stripe </Tag>
+        <Tag color="green">Đã đăng ký Stripe</Tag>
       </Paragraph>
       <Paragraph>
         Thu nhập:{" "}
@@ -95,10 +172,7 @@ export const UserProfile = ({
       </Button>
       <Paragraph type="secondary">
         NKHouse dùng{""}
-        <a
-          href="https://stripe.com/en-US/connect"
-          rel="nooper noreferrer"
-        >
+        <a href="https://stripe.com/en-US/connect" rel="nooper noreferrer">
           {" "}
           Stripe
         </a>{" "}
@@ -134,8 +208,12 @@ export const UserProfile = ({
             Liên hệ: <Text strong>{user.contact}</Text>
           </Paragraph>
           <Paragraph>
-            Role: <Text strong>{user.isadmin ? "Admin" : user.isreviewer ? "Reviewer" : "User"}</Text>
+            Role:{" "}
+            <Text strong>
+              {user.isadmin ? "Admin" : user.isreviewer ? "Reviewer" : "User"}
+            </Text>
           </Paragraph>
+          {MeetButton}
         </div>
         {additionalDetailsSection}
       </Card>
